@@ -15,7 +15,7 @@ from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, CONF_TOKEN
 from homeassistant.core import callback
 
 from .const import DOMAIN
-from .pykrado import Krado
+from .pykrado import Krado, UnauthorizedError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,6 +38,28 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         return await self._async_step("user", STEP_USER_DATA_SCHEMA, user_input)
 
+    async def async_step_reauth(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Perform reauth upon an API authentication error."""
+        return await self.async_step_reauth_confirm(user_input)
+
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Dialog that informs the user that reauth is required."""
+        if user_input is None:
+            user_input = {}
+
+        return await self._async_step(
+            step_id="reauth_confirm",
+            schema=STEP_USER_DATA_SCHEMA,
+            user_input=user_input,
+            suggested_values={
+                CONF_EMAIL: user_input.get(CONF_EMAIL, self.init_data.get(CONF_EMAIL))
+            },
+        )
+
     async def _async_step(
         self,
         step_id: str,
@@ -46,12 +68,12 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
         suggested_values: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
         """Handle step setup."""
-        if abort := self._abort_if_configured(user_input):
+        if step_id == "user" and (abort := self._abort_if_configured(user_input)):
             return abort
 
         errors = {}
 
-        if user_input is not None:
+        if user_input is not None and CONF_PASSWORD in user_input:
             if not (errors := await self.validate_client(user_input)):
                 data = {
                     CONF_EMAIL: user_input[CONF_EMAIL],
@@ -83,6 +105,8 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
             if not client.token:
                 errors["base"] = "invalid_auth"
             self.token = client.token
+        except UnauthorizedError:
+            errors["base"] = "invalid_auth"
         except asyncio.TimeoutError:
             errors["base"] = "timeout_connect"
         except ConnectError:
