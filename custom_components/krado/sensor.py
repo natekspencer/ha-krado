@@ -28,7 +28,7 @@ from .entity import KradoEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-PLANT_MEASUREMENT_STATUS_LIST = ["low", "good", "high"]
+PLANT_MEASUREMENT_STATUS_LIST = ["critical_low", "low", "good", "high"]
 
 
 async def async_setup_entry(
