@@ -13,11 +13,15 @@
         }
       },
       "reauth_confirm": {
-        "data": {}
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
       }
     },
     "error": {
       "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
       "invalid_host": "Invalid hostname or IP address",
       "timeout_connect": "Timeout establishing connection",
       "unknown": "Unexpected error"

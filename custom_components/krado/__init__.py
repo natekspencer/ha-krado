@@ -7,7 +7,7 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_TOKEN, Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.device_registry import DeviceEntry
 
 from .const import DOMAIN
@@ -31,6 +31,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: KradoConfigEntry) -> boo
 
     try:
         await coordinator.async_config_entry_first_refresh()
+    except ConfigEntryAuthFailed:
+        raise
     except Exception as ex:
         _LOGGER.exception(ex)
 

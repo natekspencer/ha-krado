@@ -5,12 +5,18 @@ from typing import Any, cast
 
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
+from gql.transport.exceptions import TransportQueryError, TransportServerError
+from graphql import DocumentNode
 
 from .const import GRAPHQL_ENDPOINT, GRAPHQL_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_HEADERS = {"client_build": "152"}
+
+
+class UnauthorizedError(Exception):
+    """Unauthorized."""
 
 
 class Krado:
@@ -25,6 +31,7 @@ class Krado:
             url=GRAPHQL_ENDPOINT,
             headers=({"Authorization": f"Bearer {self._token}"} if token else {})
             | DEFAULT_HEADERS,
+            ssl=True,
         )
         self._client = Client(schema=GRAPHQL_SCHEMA, transport=transport)
 
@@ -49,7 +56,7 @@ class Krado:
         """
         )
         params = {"email": email, "password": password}
-        result = await self._client.execute_async(query, variable_values=params)
+        result = await self._async_execute_query(query, variable_values=params)
         if errors := result.get("errors"):
             # oops
             pass
@@ -125,5 +132,22 @@ class Krado:
             }
         """
         )
-        result = await self._client.execute_async(query)
+        result = await self._async_execute_query(query)
         return result.get("plants")
+
+    async def _async_execute_query(
+        self, query: DocumentNode, **kwargs
+    ) -> dict[str, Any]:
+        """Async query execution."""
+        try:
+            return await self._client.execute_async(query, **kwargs)
+        except TransportServerError as err:
+            if err.code == 401:
+                raise UnauthorizedError("Unauthorized") from err
+            raise
+        except TransportQueryError as err:
+            if err.errors:
+                raise UnauthorizedError(err.errors) from err
+            raise
+        except Exception as ex:
+            raise ex

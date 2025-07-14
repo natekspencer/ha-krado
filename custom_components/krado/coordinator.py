@@ -13,7 +13,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN
-from .pykrado import Krado
+from .pykrado import Krado, UnauthorizedError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,6 +36,8 @@ class KradoCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
         try:
             async with async_timeout.timeout(10):
                 data = await self.client.query_plants()
+        except UnauthorizedError as err:
+            raise ConfigEntryAuthFailed(err) from err
         except Exception as ex:
             raise UpdateFailed("Couldn't read from Krado") from ex
         if data is None:
