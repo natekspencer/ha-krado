@@ -1,6 +1,6 @@
 {
   "name": "Krado",
-  "homeassistant": "2024.4.0",
+  "homeassistant": "2025.12.0",
   "render_readme": true,
   "zip_release": true,
   "filename": "krado.zip"
