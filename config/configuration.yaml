@@ -1,10 +1,5 @@
-# Limited configuration instead of default_config
 # https://www.home-assistant.io/integrations/default_config
-automation:
-frontend:
-history:
-isal:
-logbook:
+default_config:
 
 homeassistant:
   auth_providers:
