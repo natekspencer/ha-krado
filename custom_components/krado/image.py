@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from homeassistant.components.image import ImageEntity, ImageEntityDescription
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import KradoConfigEntry
 from .coordinator import KradoCoordinator
@@ -14,7 +14,7 @@ from .entity import KradoEntity
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: KradoConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Krado camera using config entry."""
     coordinator: KradoCoordinator = entry.runtime_data

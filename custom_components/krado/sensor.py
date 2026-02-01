@@ -19,7 +19,7 @@ from homeassistant.const import (
     UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 
 from . import KradoConfigEntry
@@ -34,7 +34,7 @@ PLANT_MEASUREMENT_STATUS_LIST = ["critical_low", "low", "good", "high"]
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: KradoConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Krado sensors using config entry."""
     coordinator: KradoCoordinator = entry.runtime_data
