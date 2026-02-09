@@ -58,8 +58,7 @@ class Krado:
         params = {"email": email, "password": password}
         result = await self._async_execute_query(query, variable_values=params)
         if errors := result.get("errors"):
-            # oops
-            pass
+            _LOGGER.warning("Error during login:", errors)
         self._token = result["login"]["token"]
         cast(AIOHTTPTransport, self._client.transport).headers = {
             "Authorization": f"Bearer {self._token}"
