@@ -38,7 +38,7 @@ This integration is available in the default [HACS](https://hacs.xyz/) repositor
 If you prefer manual installation:
 
 1. Download or clone this repository
-2. Copy the `custom_components/krado` folder to your Home Assistant `custom_components` directory. If this is your first custom component, you man need to create the directory.  
+2. Copy the `custom_components/krado` folder to your Home Assistant `custom_components` directory. If this is your first custom component, you may need to create the directory.  
    Example paths:
    - Hassio: `/config/custom_components`
    - Hassbian: `/home/homeassistant/.homeassistant/custom_components`
