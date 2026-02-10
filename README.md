@@ -1,9 +1,12 @@
+<!-- BEGIN AUTO-GENERATED HEADER -->
 [![Release](https://img.shields.io/github/v/release/natekspencer/ha-krado?style=for-the-badge)](https://github.com/natekspencer/ha-krado/releases)
+[![HACS Badge](https://img.shields.io/badge/HACS-default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![Buy Me A Coffee/Beer](https://img.shields.io/badge/Buy_Me_A_☕/🍺-F16061?style=for-the-badge&logo=ko-fi&logoColor=white&labelColor=grey)](https://ko-fi.com/natekspencer)
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_💜-6f42c1?style=for-the-badge&logo=github&logoColor=white&labelColor=grey)](https://github.com/sponsors/natekspencer)
 
 ![Downloads](https://img.shields.io/github/downloads/natekspencer/ha-krado/total?style=flat-square)
 ![Latest Downloads](https://img.shields.io/github/downloads/natekspencer/ha-krado/latest/total?style=flat-square)
+<!-- END AUTO-GENERATED HEADER -->
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://brands.home-assistant.io/krado/dark_logo.png">
@@ -14,49 +17,64 @@
 
 Home Assistant integration for the Krado leaflet plant care system.
 
-# Installation
+<!-- BEGIN AUTO-GENERATED INSTALLATION -->
+## ⬇️ Installation
 
-There are two main ways to install this custom component within your Home Assistant instance:
+### HACS (Recommended)
 
-1. Using HACS (see https://hacs.xyz/ for installation instructions if you do not already have it installed):
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=natekspencer&repository=ha-krado&category=integration)
 
-   [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=natekspencer&repository=ha-krado&category=integration)
-   1. Use the convenient My Home Assistant link above, or, from within Home Assistant, click on the link to **HACS**
-   2. Click on **Integrations**
-   3. Click on the vertical ellipsis in the top right and select **Custom repositories**
-   4. Enter the URL for this repository in the section that says _Add custom repository URL_ and select **Integration** in the _Category_ dropdown list
-   5. Click the **ADD** button
-   6. Close the _Custom repositories_ window
-   7. You should now be able to see the _Krado_ card on the HACS Integrations page. Click on **INSTALL** and proceed with the installation instructions.
-   8. Restart your Home Assistant instance and then proceed to the _Configuration_ section below.
+To download:
 
-2. Manual Installation:
-   1. Download or clone this repository
-   2. Copy the contents of the folder **custom_components/krado** into the same file structure on your Home Assistant instance
-      - An easy way to do this is using the [Samba add-on](https://www.home-assistant.io/getting-started/configuration/#editing-configuration-via-sambawindows-networking), but feel free to do so however you want
-   3. Restart your Home Assistant instance and then proceed to the _Configuration_ section below.
+This integration is available in the default [HACS](https://hacs.xyz/) repository.
 
-While the manual installation above seems like less steps, it's important to note that you will not be able to see updates to this custom component unless you are subscribed to the watch list. You will then have to repeat each step in the process. By using HACS, you'll be able to see that an update is available and easily update the custom component.
+1. Use the **My Home Assistant** badge above, or from within Home Assistant, click on **HACS**
+2. Search for `Krado` and click on the appropriate repository
+3. Click **DOWNLOAD**
+4. Restart Home Assistant
 
-# Configuration
+### Manual
+
+If you prefer manual installation:
+
+1. Download or clone this repository
+2. Copy the `custom_components/krado` folder to your Home Assistant `custom_components` directory. If this is your first custom component, you man need to create the directory.  
+   Example paths:
+   - Hassio: `/config/custom_components`
+   - Hassbian: `/home/homeassistant/.homeassistant/custom_components`
+3. Restart Home Assistant
+
+> ⚠️ Manual installation will not provide automatic update notifications. HACS installation is recommended unless you have a specific need.
+
+## ➕ Setup
+
+Once installed, you can setup the integration by clicking on the following badge:
 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=krado)
 
-There is a config flow for this Krado integration. After installing the custom component, use the convenient My Home Assistant link above.
-
 Alternatively:
 
-1. Go to **Configuration**->**Integrations**
-2. Click **+ ADD INTEGRATION** to setup a new integration
-3. Search for **Krado** and click on it
-4. You will be guided through the rest of the setup process via the config flow
+1. Go to [Settings > Devices & services](https://my.home-assistant.io/redirect/integrations/)
+2. In the bottom-right corner, select **Add integration**
+3. Type `Krado` and select the **Krado** integration
+4. Follow the instructions to add the integration to your Home Assistant
+<!-- END AUTO-GENERATED INSTALLATION -->
 
 ---
 
-## Support Me
+<!-- BEGIN AUTO-GENERATED FOOTER -->
+## ❤️ Support Me
 
-I'm not employed by Krado, and provide this custom component purely for your own enjoyment and home automation needs.
+I maintain this Home Assistant integration in my spare time. If you find it useful, consider supporting development:
 
-If you already own a Krado, found this integration useful and want to donate, consider [sponsoring me on GitHub](https://github.com/sponsors/natekspencer) or buying me a coffee ☕ (or beer 🍺) instead by using the link below:
+- 💜 [Sponsor me on GitHub](https://github.com/sponsors/natekspencer)
+- ☕ [Buy me a coffee / beer](https://ko-fi.com/natekspencer)
+- 💸 [PayPal (direct support)](https://www.paypal.com/paypalme/natekspencer)
+- ⭐ [Star this project](https://github.com/natekspencer/ha-krado)
+- 📦 If you’d like to support in other ways, such as donating hardware for testing, feel free to [reach out to me](https://github.com/natekspencer)
 
-<a href='https://ko-fi.com/Y8Y57F59S' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+## 📈 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=natekspencer/ha-krado)](https://www.star-history.com/#natekspencer/ha-krado)
+
+<!-- END AUTO-GENERATED FOOTER -->
