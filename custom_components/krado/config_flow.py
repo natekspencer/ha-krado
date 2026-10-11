@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any
 
@@ -107,7 +106,7 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
             self.token = client.token
         except UnauthorizedError:
             errors["base"] = "invalid_auth"
-        except asyncio.TimeoutError:
+        except TimeoutError:
             errors["base"] = "timeout_connect"
         except ConnectError:
             errors["base"] = "invalid_host"
