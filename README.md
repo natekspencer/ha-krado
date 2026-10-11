@@ -9,8 +9,7 @@
 <!-- END AUTO-GENERATED HEADER -->
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://brands.home-assistant.io/krado/dark_logo.png">
-  <img alt="Krado logo" src="https://brands.home-assistant.io/krado/logo.png">
+  <img alt="Krado logo" src="custom_components/krado/brand/logo.png">
 </picture>
 
 # Krado for Home Assistant
