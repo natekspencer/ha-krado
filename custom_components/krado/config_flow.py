@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 from aiohttp import ClientConnectorError
+from gql.transport.exceptions import TransportError
 from httpx import ConnectError, HTTPStatusError
 import voluptuous as vol
 
@@ -115,6 +116,15 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = "invalid_host"
         except HTTPStatusError as err:
             errors["base"] = str(err)
+        except TransportError as err:
+            # gql 4 wraps connection errors in TransportConnectionFailed
+            if isinstance(err.__cause__, TimeoutError):
+                errors["base"] = "timeout_connect"
+            elif isinstance(err.__cause__, ClientConnectorError):
+                errors["base"] = "invalid_host"
+            else:
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
