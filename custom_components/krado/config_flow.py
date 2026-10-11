@@ -72,22 +72,23 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors = {}
 
-        if user_input is not None and CONF_PASSWORD in user_input:
-            if not (errors := await self.validate_client(user_input)):
-                data = {
-                    CONF_EMAIL: user_input[CONF_EMAIL],
-                    CONF_TOKEN: self.token,
-                }
-                if existing_entry := self.hass.config_entries.async_get_entry(
-                    self.context.get("entry_id")
-                ):
-                    self.hass.config_entries.async_update_entry(
-                        existing_entry, data=data
-                    )
-                    await self.hass.config_entries.async_reload(existing_entry.entry_id)
-                    return self.async_abort(reason="reconfigure_successful")
+        if (
+            user_input is not None
+            and CONF_PASSWORD in user_input
+            and not (errors := await self.validate_client(user_input))
+        ):
+            data = {
+                CONF_EMAIL: user_input[CONF_EMAIL],
+                CONF_TOKEN: self.token,
+            }
+            if existing_entry := self.hass.config_entries.async_get_entry(
+                self.context.get("entry_id")
+            ):
+                self.hass.config_entries.async_update_entry(existing_entry, data=data)
+                await self.hass.config_entries.async_reload(existing_entry.entry_id)
+                return self.async_abort(reason="reconfigure_successful")
 
-                return self.async_create_entry(title=user_input[CONF_EMAIL], data=data)
+            return self.async_create_entry(title=user_input[CONF_EMAIL], data=data)
 
         return self.async_show_form(
             step_id=step_id,
@@ -114,8 +115,8 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = "invalid_host"
         except HTTPStatusError as err:
             errors["base"] = str(err)
-        except Exception as ex:  # pylint: disable=broad-except
-            _LOGGER.error(ex)
+        except Exception:  # pylint: disable=broad-except
+            _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
         return errors
 

@@ -58,7 +58,7 @@ class Krado:
         params = {"email": email, "password": password}
         result = await self._async_execute_query(query, variable_values=params)
         if errors := result.get("errors"):
-            _LOGGER.warning("Error during login:", errors)
+            _LOGGER.warning("Error during login: %s", errors)
         self._token = result["login"]["token"]
         cast(AIOHTTPTransport, self._client.transport).headers = {
             "Authorization": f"Bearer {self._token}"
@@ -148,5 +148,3 @@ class Krado:
             if err.errors:
                 raise UnauthorizedError(err.errors) from err
             raise
-        except Exception as ex:
-            raise ex
