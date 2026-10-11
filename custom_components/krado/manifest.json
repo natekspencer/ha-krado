@@ -12,5 +12,8 @@
   "loggers": [
     "custom_components.krado"
   ],
+  "requirements": [
+    "gql>=3.5.0,<5"
+  ],
   "version": "0.0.0"
 }
