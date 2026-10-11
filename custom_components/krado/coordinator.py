@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import timedelta
 import logging
 from typing import Any
-
-import async_timeout
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -34,7 +33,7 @@ class KradoCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
 
     async def _async_update_data(self) -> list[dict[str, Any]]:
         try:
-            async with async_timeout.timeout(10):
+            async with asyncio.timeout(10):
                 data = await self.client.query_plants()
         except UnauthorizedError as err:
             raise ConfigEntryAuthFailed(err) from err

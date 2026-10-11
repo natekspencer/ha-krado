@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any
 
 from aiohttp import ClientConnectorError
+from gql.transport.exceptions import TransportError
 from httpx import ConnectError, HTTPStatusError
 import voluptuous as vol
 
@@ -73,22 +73,23 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
 
         errors = {}
 
-        if user_input is not None and CONF_PASSWORD in user_input:
-            if not (errors := await self.validate_client(user_input)):
-                data = {
-                    CONF_EMAIL: user_input[CONF_EMAIL],
-                    CONF_TOKEN: self.token,
-                }
-                if existing_entry := self.hass.config_entries.async_get_entry(
-                    self.context.get("entry_id")
-                ):
-                    self.hass.config_entries.async_update_entry(
-                        existing_entry, data=data
-                    )
-                    await self.hass.config_entries.async_reload(existing_entry.entry_id)
-                    return self.async_abort(reason="reconfigure_successful")
+        if (
+            user_input is not None
+            and CONF_PASSWORD in user_input
+            and not (errors := await self.validate_client(user_input))
+        ):
+            data = {
+                CONF_EMAIL: user_input[CONF_EMAIL],
+                CONF_TOKEN: self.token,
+            }
+            if existing_entry := self.hass.config_entries.async_get_entry(
+                self.context.get("entry_id")
+            ):
+                self.hass.config_entries.async_update_entry(existing_entry, data=data)
+                await self.hass.config_entries.async_reload(existing_entry.entry_id)
+                return self.async_abort(reason="reconfigure_successful")
 
-                return self.async_create_entry(title=user_input[CONF_EMAIL], data=data)
+            return self.async_create_entry(title=user_input[CONF_EMAIL], data=data)
 
         return self.async_show_form(
             step_id=step_id,
@@ -107,7 +108,7 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
             self.token = client.token
         except UnauthorizedError:
             errors["base"] = "invalid_auth"
-        except asyncio.TimeoutError:
+        except TimeoutError:
             errors["base"] = "timeout_connect"
         except ConnectError:
             errors["base"] = "invalid_host"
@@ -115,8 +116,17 @@ class KradoConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = "invalid_host"
         except HTTPStatusError as err:
             errors["base"] = str(err)
-        except Exception as ex:  # pylint: disable=broad-except
-            _LOGGER.error(ex)
+        except TransportError as err:
+            # gql 4 wraps connection errors in TransportConnectionFailed
+            if isinstance(err.__cause__, TimeoutError):
+                errors["base"] = "timeout_connect"
+            elif isinstance(err.__cause__, ClientConnectorError):
+                errors["base"] = "invalid_host"
+            else:
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+        except Exception:  # pylint: disable=broad-except
+            _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
         return errors
 

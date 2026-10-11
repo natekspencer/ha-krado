@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 import logging
 
 from homeassistant.components.sensor import (
@@ -197,9 +197,7 @@ class KradoSensorEntity(KradoEntity, SensorEntity):
         if value is None:
             return value
         if self.device_class == SensorDeviceClass.DURATION:
-            return (
-                datetime.now(timezone.utc) - datetime.fromisoformat(value)
-            ).total_seconds()
+            return (datetime.now(UTC) - datetime.fromisoformat(value)).total_seconds()
         if self.device_class == SensorDeviceClass.TIMESTAMP:
             return datetime.fromisoformat(value)
         if isinstance(value, str):
