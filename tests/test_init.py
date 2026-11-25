@@ -159,7 +159,9 @@ async def test_stale_while_stopped_cleaned_up_on_setup(
     plants: list[dict[str, Any]],
 ) -> None:
     """Plants and leaflets removed while the entry was unloaded are cleaned up."""
+    plants[:] = [make_plant("a"), make_plant("b")]
     await setup_integration(hass, config_entry)
+    assert len(entity_unique_ids(hass, config_entry, "b")) == ENTITIES_PER_LEAFLET_PLANT
     assert await hass.config_entries.async_unload(config_entry.entry_id)
 
     plants[:] = [make_plant("b", leaflet=False)]
