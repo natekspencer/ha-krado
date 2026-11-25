@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 import logging
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -15,6 +16,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     PERCENTAGE,
     EntityCategory,
+    Platform,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -22,9 +24,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 
-from . import KradoConfigEntry
-from .coordinator import KradoCoordinator
-from .entity import KradoEntity
+from .coordinator import KradoConfigEntry
+from .entity import KradoEntity, async_setup_dynamic_entities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,15 +38,26 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Krado sensors using config entry."""
-    coordinator: KradoCoordinator = entry.runtime_data
-    async_add_entities(
-        [
-            KradoSensorEntity(coordinator, descriptor, plant["id"])
-            for plant in coordinator.data
-            if plant["sensor"]["isConnected"]
-            for descriptor in DESCRIPTORS
-        ]
+    async_setup_dynamic_entities(
+        hass,
+        entry,
+        async_add_entities,
+        Platform.SENSOR,
+        _descriptions_for_plant,
+        KradoSensorEntity,
     )
+
+
+def _descriptions_for_plant(
+    plant: dict[str, Any],
+) -> tuple[KradoSensorEntityDescription, ...]:
+    """Return the sensor descriptions that apply to a plant."""
+    return DESCRIPTORS if _has_leaflet(plant) else ()
+
+
+def _has_leaflet(plant: dict[str, Any]) -> bool:
+    """Return whether the plant has a connected leaflet."""
+    return bool((plant.get("sensor") or {}).get("isConnected"))
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -175,17 +187,18 @@ class KradoSensorEntity(KradoEntity, SensorEntity):
 
     entity_description: KradoSensorEntityDescription
 
-    def __init__(
-        self,
-        coordinator: KradoCoordinator,
-        description: KradoSensorEntityDescription,
-        plant_id: str,
-    ) -> None:
-        """Construct a Krado sensor entity."""
-        super().__init__(coordinator, description, plant_id)
-        if description.range_field:
-            low, high = self.plant["sensor"][description.range_field]
-            self._attr_extra_state_attributes = {"low": low, "high": high}
+    @property
+    def available(self) -> bool:
+        """Test if entity is available."""
+        return super().available and _has_leaflet(self.plant)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Return the healthy range for status sensors."""
+        if not (range_field := self.entity_description.range_field):
+            return None
+        low, high = self.plant["sensor"][range_field]
+        return {"low": low, "high": high}
 
     @property
     def native_value(self) -> int | str | None:
@@ -193,6 +206,8 @@ class KradoSensorEntity(KradoEntity, SensorEntity):
         data = self.plant
         if self.entity_description.is_reading:
             data = data["sensor"]["lastReading"]
+            if data is None:
+                return None
         value = data[self.entity_description.field]
         if value is None:
             return value

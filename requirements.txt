@@ -1,5 +1,5 @@
 # Home Assistant
-homeassistant>=2025.12
+homeassistant>=2026.11
 
 # Integration
 gql[aiohttp]
@@ -9,5 +9,6 @@ colorlog
 isal
 pip>=26.2.1
 pre-commit
+pytest-homeassistant
 ruff>=0.17.0
 zlib-ng
