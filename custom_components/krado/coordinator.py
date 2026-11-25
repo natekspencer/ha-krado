@@ -7,6 +7,7 @@ from datetime import timedelta
 import logging
 from typing import Any
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -14,17 +15,24 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .const import DOMAIN
 from .pykrado import Krado, UnauthorizedError
 
+type KradoConfigEntry = ConfigEntry[KradoCoordinator]
+
 _LOGGER = logging.getLogger(__name__)
 
 
 class KradoCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
     """Krado data update coordinator."""
 
-    def __init__(self, hass: HomeAssistant, client: Krado) -> None:
+    config_entry: KradoConfigEntry
+
+    def __init__(
+        self, hass: HomeAssistant, entry: KradoConfigEntry, client: Krado
+    ) -> None:
         """Initialize."""
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=entry,
             name=DOMAIN,
             update_interval=timedelta(minutes=5),
             always_update=False,
@@ -42,3 +50,9 @@ class KradoCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
         if data is None:
             raise ConfigEntryAuthFailed
         return data
+
+    def get_plant(self, plant_id: str) -> dict[str, Any] | None:
+        """Return the plant with the given id, if it is still returned by the API."""
+        return next(
+            (plant for plant in self.data or [] if plant["id"] == plant_id), None
+        )

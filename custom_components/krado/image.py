@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from homeassistant.components.image import ImageEntity, ImageEntityDescription
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import KradoConfigEntry
-from .coordinator import KradoCoordinator
-from .entity import KradoEntity
+from .coordinator import KradoConfigEntry, KradoCoordinator
+from .entity import KradoEntity, async_setup_dynamic_entities
 
 
 async def async_setup_entry(
@@ -16,18 +18,30 @@ async def async_setup_entry(
     entry: KradoConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up Krado camera using config entry."""
-    coordinator: KradoCoordinator = entry.runtime_data
-    async_add_entities(
-        [
-            KradoImageEntity(coordinator, IMAGE, plant["id"])
-            for plant in coordinator.data
-            if plant.get("plantClassification", {}).get("illustrationUrl")
-        ]
+    """Set up Krado images using config entry."""
+    async_setup_dynamic_entities(
+        hass,
+        entry,
+        async_add_entities,
+        Platform.IMAGE,
+        _descriptions_for_plant,
+        KradoImageEntity,
     )
 
 
 IMAGE = ImageEntityDescription(key="image", name=None)
+
+
+def _illustration_url(plant: dict[str, Any]) -> str | None:
+    """Return the plant's illustration URL, if any."""
+    return (plant.get("plantClassification") or {}).get("illustrationUrl")
+
+
+def _descriptions_for_plant(
+    plant: dict[str, Any],
+) -> tuple[ImageEntityDescription, ...]:
+    """Return the image descriptions that apply to a plant."""
+    return (IMAGE,) if _illustration_url(plant) else ()
 
 
 class KradoImageEntity(KradoEntity, ImageEntity):
@@ -44,6 +58,8 @@ class KradoImageEntity(KradoEntity, ImageEntity):
         ImageEntity.__init__(self, coordinator.hass)
 
     @property
-    def image_url(self) -> str:
+    def image_url(self) -> str | None:
         """Return URL of image."""
-        return self.plant.get("plantClassification", {}).get("illustrationUrl")
+        if (plant := self.coordinator.get_plant(self.plant_id)) is None:
+            return None
+        return _illustration_url(plant)

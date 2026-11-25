@@ -4,7 +4,9 @@ Requires that exactly one field must be supplied and that field must not be `nul
 directive @oneOf on INPUT_OBJECT
 
 type AuthType {
+  accessToken: String
   errors: Errors
+  refreshToken: String
   token: String!
   user: User!
 }
@@ -39,9 +41,12 @@ type BlogPost {
 
 type ClientConfig {
   clientVersion: ClientVersion
+  features: Hash
   routes: Routes!
+  tests: Hash
   tutorials: Hash!
   updateRequired: Boolean! @deprecated(reason: "Moved to clientVersion")
+  viewables: Hash
 }
 
 type ClientVersion {
@@ -54,11 +59,17 @@ type ClientVersion {
 
 type ContentItem {
   backgroundColor: String
+  backgroundImageUrl: String
+  body: String
   color: String
+  configuration: Hash
   externalUrl: String
   id: ID!
   imageUrl: String
+  subtitle: String
   title: String
+  type: String
+  url: String
 }
 
 type ContentModule {
@@ -186,6 +197,15 @@ type Message {
 }
 
 type Mutation {
+  calibrateLightSensor(
+    serialNumber: String!
+    ppfdCalibrationFactor: Float!
+  ): Sensor
+  calibrateMoistureSensor(
+    serialNumber: String!
+    dryReading: Int!
+    wetReading: Int!
+  ): Sensor
   confirmAccount(token: String!): User
   confirmUser(id: String!): User
   connectSensor(
@@ -266,7 +286,8 @@ type Mutation {
     participantProgramId: String!
   ): UserParticipantProgram
   provisionSensor(serialNumber: String!): KeysAndCertificates
-  recordView(viewableId: String!, viewableType: String!): Message
+  recordView(viewableId: String!, viewableType: String!): UserViewable
+  refreshToken(refreshToken: String!): AuthType
   register(
     firstName: String!
     lastName: String
@@ -275,6 +296,7 @@ type Mutation {
     password: String!
     acceptedTermsAndConditions: Boolean!
     trialEligible: Boolean
+    optedInToMarketing: Boolean
     serialNumber: String
     passwordConfirmation: String @deprecated(reason: "No longer required")
   ): AuthType
@@ -526,6 +548,7 @@ type Plant {
   journalEntriesCount: Int!
   kind: String
   lastAnalyzedAt: ISO8601DateTime
+  lastReading: Reading
   lightStatus: String!
   moistureStatus: String!
   name: String
@@ -533,9 +556,11 @@ type Plant {
   pendingActionsCount: Int!
   plantActions: [PlantAction!]!
   plantClassification: PlantClassification
+  plantStatistics: Hash
   sensor: Sensor!
   statistics: [Hash!]!
   status: String!
+  summary: String
   temperatureStatus: String!
 }
 
@@ -546,6 +571,7 @@ type PlantAction {
   prompt: String!
   severity: String!
   status: String!
+  url: String
 }
 
 type PlantClassification {
@@ -664,6 +690,7 @@ type PlantNotificationPreferences {
   humidityAlert: Boolean!
   id: ID!
   journalAction: Boolean!
+  lightAction: Boolean!
   lightAlert: Boolean!
   moistureAction: Boolean!
   moistureAlert: Boolean!
@@ -681,6 +708,7 @@ input PlantNotificationPreferencesInput {
   temperatureAction: Boolean
   batteryAction: Boolean
   journalAction: Boolean
+  lightAction: Boolean
 }
 
 type Query {
@@ -688,6 +716,7 @@ type Query {
   clientConfig: ClientConfig!
   clientVersion(id: String!): ClientVersion
   clientVersions: [ClientVersion!]!
+  contentItems: [ContentItem!]!
   contentModules: [ContentModule!]!
   currentNotice(displayModule: String!): NoticeInterface
   currentUser: User
@@ -842,6 +871,7 @@ type Routes {
   blogsUrl: String!
   instagramUrl: String!
   marketingSiteUrl: String!
+  privacyPolicyUrl: String!
   storeUrl: String!
   supportUrl: String!
   termsOfServiceUrl: String!
@@ -858,10 +888,15 @@ type Sensor {
   lastReading: Reading
   lightRange: [Float!]!
   lightStatus: String!
+  moistureCalDry: Int
+  moistureCalibratedAt: ISO8601DateTime
+  moistureCalWet: Int
   moistureRange: [Int!]!
   moistureStatus: String!
   plant: Plant!
   plantId: String!
+  ppfdCalibratedAt: ISO8601DateTime
+  ppfdCalibrationFactor: Float
   serialNumber: String
   temperatureRange: [Int!]!
   temperatureStatus: String!
@@ -949,6 +984,7 @@ type User {
   timeZone: String!
   tutorials: UserTutorial!
   userParticipantPrograms: [UserParticipantProgram!]!
+  viewables: Hash
 }
 
 """
@@ -998,6 +1034,13 @@ type UserParticipantProgram {
   participantProgramId: ID!
   user: User!
   userId: ID!
+}
+
+type UserViewable {
+  id: ID!
+  lastViewedAt: ISO8601DateTime
+  viewableId: String!
+  viewableType: String!
 }
 
 type UserTutorial {

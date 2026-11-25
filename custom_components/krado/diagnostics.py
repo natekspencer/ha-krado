@@ -7,7 +7,7 @@ from typing import Any
 from homeassistant.components.diagnostics.util import async_redact_data
 from homeassistant.core import HomeAssistant
 
-from . import KradoConfigEntry
+from .coordinator import KradoConfigEntry
 
 TO_REDACT = {
     "id",
